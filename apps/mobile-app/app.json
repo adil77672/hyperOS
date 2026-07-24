@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Hyperzod",
+    "slug": "hyperzod-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0F5132"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "co.fusionwave.hyperzod"
+    },
+    "android": {
+      "package": "co.fusionwave.hyperzod"
+    },
+    "extra": {
+      "apiBase": "http://localhost:3100"
+    }
+  }
+}

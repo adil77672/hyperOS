@@ -36,6 +36,10 @@ export function buildDataSourceOptions(
     password: creds.password,
     ssl: creds.ssl ? { rejectUnauthorized: false } : false,
     entities: ALL_ENTITIES,
+    // Our PKs default to gen_random_uuid() from pgcrypto (schema.sql §1). Tell
+    // TypeORM to expect pgcrypto rather than its default uuid-ossp, which
+    // otherwise logs a spurious "uuid-ossp cannot be installed" warning on boot.
+    uuidExtension: 'pgcrypto',
     // schema.sql is authoritative. Never let TypeORM touch the DDL.
     synchronize: false,
     migrationsRun: false,

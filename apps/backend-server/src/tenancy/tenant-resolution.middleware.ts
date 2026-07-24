@@ -37,6 +37,9 @@ export function tenantResolutionMiddleware(
 ): RequestHandler {
   const logger = new Logger('TenantResolution');
   const dashboardHost = normalizeHost(config.dashboardHost);
+  // The dev-fallback message is useful once, but firing it on every request
+  // buries the real logs. Log it the first time only.
+  let fallbackLogged = false;
 
   async function applyDashboardContext(req: Request, context: RequestContext): Promise<void> {
     const header = req.headers.authorization;
@@ -65,7 +68,12 @@ export function tenantResolutionMiddleware(
     if (!tenant && config.devFallbackSlug) {
       // Local development: `localhost:3000` carries no tenant subdomain.
       tenant = await resolver.findBySlug(config.devFallbackSlug);
-      if (tenant) logger.debug(`host "${hostname}" fell back to dev tenant "${tenant.slug}"`);
+      if (tenant && !fallbackLogged) {
+        fallbackLogged = true;
+        logger.debug(
+          `host "${hostname}" resolving to dev fallback tenant "${tenant.slug}" (logged once)`,
+        );
+      }
     }
 
     if (!tenant) throw ApiException.notFound();

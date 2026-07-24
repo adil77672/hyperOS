@@ -53,10 +53,11 @@ async function bootstrap(): Promise<void> {
   mountRoutes(app, c);
 
   const server = app.listen(config.PORT, () => {
-    logger.log(`Hyperzod backend listening on http://localhost:${config.PORT}`);
-    logger.log(`  storefront:  http://{tenant}.${config.PLATFORM_ROOT_DOMAIN}/api/v1/storefront/*`);
-    logger.log(`  dashboard:   http://${config.DASHBOARD_HOST}/api/v1/dashboard/*`);
-    logger.log(`  health:      http://localhost:${config.PORT}/health`);
+    const base = `http://localhost:${config.PORT}`;
+    logger.log(`Hyperzod backend listening on ${base}`);
+    logger.log(`  storefront:  ${base}/api/v1/storefront/*`);
+    logger.log(`  dashboard:   ${base}/api/v1/dashboard/*`);
+    logger.log(`  health:      ${base}/health`);
   });
 
   const shutdown = (signal: string): void => {
