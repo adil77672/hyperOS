@@ -1,9 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { api, loadSession, saveSession } from '@/services/platform-api';
 import type { AuthSession, AuthUser } from '@/services/platform-types';
+
+/** Only accept a same-section `next` target — never redirect off /super-admin. */
+function safeNextPath(raw: string | null): string {
+  if (raw && raw.startsWith('/super-admin') && !raw.startsWith('//')) return raw;
+  return '/super-admin';
+}
 
 interface AuthState {
   user: AuthUser | null;
@@ -19,6 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const s = loadSession();
@@ -34,8 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
     if (!session && pathname !== '/super-admin/login') router.replace('/super-admin/login');
-    if (session && pathname === '/super-admin/login') router.replace('/super-admin');
-  }, [loading, session, pathname, router]);
+    if (session && pathname === '/super-admin/login') {
+      router.replace(safeNextPath(searchParams.get('next')));
+    }
+  }, [loading, session, pathname, router, searchParams]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -48,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         saveSession(s);
         setSession(s);
-        router.replace('/super-admin');
+        router.replace(safeNextPath(searchParams.get('next')));
       },
       logout: async () => {
         await api.logout();
@@ -56,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.replace('/super-admin/login');
       },
     }),
-    [session, loading, router],
+    [session, loading, router, searchParams],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

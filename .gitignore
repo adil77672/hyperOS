@@ -15,10 +15,12 @@ npm-debug.log*
 .pgdata/
 .redisdata/
 
-web/build/
-web/node_modules/
-web/dist/
-web/coverage/
-web/dist/
-web/dist/
-web/.next/
+apps/web/.next/
+apps/web/build/
+apps/web/dist/
+apps/web/coverage/
+apps/backend-server/dist/
+apps/mobile-app/.expo/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat

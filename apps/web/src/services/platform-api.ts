@@ -1,4 +1,9 @@
 import type { AuthSession, PlatformTenant, TenantStatus } from './platform-types';
+import {
+  clearDashboardSessionCookie,
+  setDashboardSessionCookie,
+} from '@/lib/dashboard-session-cookie';
+import { SUPER_ADMIN_SESSION_COOKIE } from '@/lib/jwt';
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3000';
 const STORAGE_KEY = 'hz_super_session';
@@ -25,8 +30,15 @@ export function loadSession(): AuthSession | null {
 
 export function saveSession(session: AuthSession | null): void {
   if (typeof window === 'undefined') return;
-  if (!session) localStorage.removeItem(STORAGE_KEY);
-  else localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  if (!session) {
+    localStorage.removeItem(STORAGE_KEY);
+    clearDashboardSessionCookie(SUPER_ADMIN_SESSION_COOKIE);
+  } else {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    // Mirrored into a cookie so middleware.ts can gate /super-admin/* at the
+    // edge — localStorage is invisible there. See dashboard-session-cookie.ts.
+    setDashboardSessionCookie(SUPER_ADMIN_SESSION_COOKIE, session.access_token);
+  }
 }
 
 async function request<T>(path: string, init: RequestInit = {}, token?: string | null): Promise<T> {

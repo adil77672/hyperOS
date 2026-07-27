@@ -1,9 +1,15 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { api, loadSession, saveSession } from '@/services/admin-api';
 import type { AuthSession, AuthUser, Merchant } from '@/services/admin-types';
+
+/** Only accept a same-section `next` target — never redirect off /admin. */
+function safeNextPath(raw: string | null): string {
+  if (raw && raw.startsWith('/admin') && !raw.startsWith('//')) return raw;
+  return '/admin';
+}
 
 interface AuthState {
   user: AuthUser | null;
@@ -25,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const bootstrap = useCallback(async (existing?: AuthSession | null) => {
     const s = existing ?? loadSession();
@@ -61,8 +68,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
     if (!session && pathname !== '/admin/login') router.replace('/admin/login');
-    if (session && pathname === '/admin/login') router.replace('/admin');
-  }, [loading, session, pathname, router]);
+    if (session && pathname === '/admin/login') {
+      router.replace(safeNextPath(searchParams.get('next')));
+    }
+  }, [loading, session, pathname, router, searchParams]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -73,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login: async (email, password) => {
         const s = await api.login(email, password);
         await bootstrap(s);
-        router.replace('/admin');
+        router.replace(safeNextPath(searchParams.get('next')));
       },
       logout: async () => {
         await api.logout();
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshMe: () => bootstrap(session),
       setMerchant,
     }),
-    [session, merchant, merchants, loading, bootstrap, router],
+    [session, merchant, merchants, loading, bootstrap, router, searchParams],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

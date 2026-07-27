@@ -14,7 +14,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const { user, merchant, loading, logout } = useAuth();
   const pathname = usePathname();
 
-  if (pathname === '/login') return <>{children}</>;
+  if (pathname === '/admin/login') return <>{children}</>;
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center text-ink-700/70">
