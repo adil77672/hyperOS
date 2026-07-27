@@ -255,3 +255,4 @@ packages/shared-types/   enums, DTOs, error codes, money helpers
 infra/docker/            docker-compose (postgres+postgis, redis)
 ```
 # Hyperzod
+# hyperOS
