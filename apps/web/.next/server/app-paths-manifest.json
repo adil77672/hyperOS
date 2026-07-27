@@ -1,16 +1,16 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/(user)/account/page": "app/(user)/account/page.js",
-  "/(admin)/admin/page": "app/(admin)/admin/page.js",
-  "/(admin)/admin/settings/page": "app/(admin)/admin/settings/page.js",
   "/(admin)/admin/login/page": "app/(admin)/admin/login/page.js",
-  "/(storefront)/checkout/page": "app/(storefront)/checkout/page.js",
-  "/(storefront)/cart/page": "app/(storefront)/cart/page.js",
-  "/(storefront)/orders/[id]/page": "app/(storefront)/orders/[id]/page.js",
-  "/(storefront)/page": "app/(storefront)/page.js",
-  "/(storefront)/products/page": "app/(storefront)/products/page.js",
   "/(admin)/admin/catalog/page": "app/(admin)/admin/catalog/page.js",
+  "/(admin)/admin/settings/page": "app/(admin)/admin/settings/page.js",
+  "/(admin)/admin/page": "app/(admin)/admin/page.js",
+  "/(storefront)/page": "app/(storefront)/page.js",
+  "/(storefront)/cart/page": "app/(storefront)/cart/page.js",
+  "/(storefront)/checkout/page": "app/(storefront)/checkout/page.js",
+  "/(storefront)/products/page": "app/(storefront)/products/page.js",
   "/(storefront)/products/[id]/page": "app/(storefront)/products/[id]/page.js",
-  "/(super-admin)/super-admin/page": "app/(super-admin)/super-admin/page.js",
-  "/(super-admin)/super-admin/login/page": "app/(super-admin)/super-admin/login/page.js"
+  "/(storefront)/orders/[id]/page": "app/(storefront)/orders/[id]/page.js",
+  "/(super-admin)/super-admin/login/page": "app/(super-admin)/super-admin/login/page.js",
+  "/(super-admin)/super-admin/page": "app/(super-admin)/super-admin/page.js"
 }
