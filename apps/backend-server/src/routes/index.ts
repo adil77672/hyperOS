@@ -8,6 +8,7 @@ import { catalogRoutes } from '../catalog/catalog.routes';
 import { orderRoutes } from '../orders/order.routes';
 import { themeRoutes } from '../themes/theme.routes';
 import { sseRoutes } from '../notifications/sse.routes';
+import { platformRoutes } from '../platform/platform.routes';
 
 /**
  * Barrel + mounting for every HTTP router in the app.
@@ -24,6 +25,7 @@ export {
   orderRoutes,
   themeRoutes,
   sseRoutes,
+  platformRoutes,
   healthRoutes,
 };
 
@@ -75,6 +77,8 @@ export function mountRoutes(app: Express, c: Container): void {
     '/api/v1/dashboard',
     sseRoutes(c.http, c.sse, c.merchants, c.appDataSource, config.SSE_HEARTBEAT_MS),
   );
+
+  app.use('/api/v1/platform', platformRoutes(c.http, c.platform));
 
   // The single error exit point (replaces the Nest exception filter). Last.
   app.use(c.http.errorHandler());

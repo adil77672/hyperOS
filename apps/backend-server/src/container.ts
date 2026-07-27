@@ -16,6 +16,7 @@ import { OrdersService } from './orders/orders.service';
 import { CartService } from './checkout/cart.service';
 import { CheckoutService } from './checkout/checkout.service';
 import { MerchantSseService } from './notifications/merchant-sse.service';
+import { PlatformService } from './platform/platform.service';
 
 /**
  * The composition root — hand-wired dependency graph that replaces the NestJS
@@ -50,6 +51,7 @@ export interface Container {
   cart: CartService;
   checkout: CheckoutService;
   sse: MerchantSseService;
+  platform: PlatformService;
 
   shutdown: () => Promise<void>;
 }
@@ -115,6 +117,8 @@ export async function buildContainer(config: EnvironmentVariables): Promise<Cont
   // Subscribe to domain events + open the Redis subscriber connection.
   sse.init();
 
+  const platform = new PlatformService(platformDataSource, config.PLATFORM_ROOT_DOMAIN);
+
   /* ------------------------------------------------------------ http kernel */
 
   const http = new Http({
@@ -155,6 +159,7 @@ export async function buildContainer(config: EnvironmentVariables): Promise<Cont
     cart,
     checkout,
     sse,
+    platform,
     shutdown,
   };
 }

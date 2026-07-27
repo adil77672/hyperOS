@@ -7,28 +7,43 @@ import { formatMoney } from '@/lib/money';
 import { useStore } from '@/store/store-context';
 import { useCart } from '@/store/cart';
 import { ModifierPicker } from './ModifierPicker';
-import { EmptyState, Spinner } from './ui';
+import { Button, EmptyState, Spinner } from './ui';
 
 export function Menu() {
   const { boot } = useStore();
   const { addItem } = useCart();
   const [menu, setMenu] = useState<MenuType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [picking, setPicking] = useState<Product | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const currency = boot?.tenant.default_currency_code ?? 'AUD';
 
   useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setError(null);
     api
       .menu()
       .then((m) => {
+        if (!alive) return;
         setMenu(m);
         setActive(m.categories[0]?.id ?? null);
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .catch((e) => {
+        // Previously a failed fetch fell through to "No items yet", which is
+        // indistinguishable from an empty menu. Surface it and let the customer
+        // retry instead.
+        if (alive) setError(e?.message ?? 'Could not load the menu.');
+      })
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [reloadKey]);
 
   const categories = useMemo(
     () => (menu?.categories ?? []).filter((c) => c.products.length > 0),
@@ -36,6 +51,16 @@ export function Menu() {
   );
 
   if (loading) return <Spinner label="Loading menu…" />;
+  if (error)
+    return (
+      <div className="rounded-theme border border-brand-danger/30 bg-brand-danger/5 p-6 text-center">
+        <p className="font-semibold text-brand-danger">Couldn’t load the menu</p>
+        <p className="mt-1 text-sm text-brand-fg/60">{error}</p>
+        <Button variant="outline" className="mt-4" onClick={() => setReloadKey((k) => k + 1)}>
+          Try again
+        </Button>
+      </div>
+    );
   if (categories.length === 0) return <EmptyState title="No items yet" hint="Check back soon." />;
 
   async function handleAdd(modifierIds: string[], quantity: number, notes: string) {

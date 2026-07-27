@@ -21,24 +21,25 @@ Node.js + Express + TypeScript backend, PostgreSQL (RLS-enforced tenancy) + Redi
 
 | App / package | Status | What it is |
 | --- | --- | --- |
-| `apps/backend-server` | **Built & verified** | Express API — auth, storefront, checkout, catalog CRUD, order FSM, live SSE feed |
+| `apps/backend-server` | **Built & verified** | Express API — auth, storefront, checkout, catalog CRUD, order FSM, live SSE feed, platform admin |
 | `apps/storefront-web` | **Built & verified** | Next.js 15 customer storefront — menu, modifiers, cart, checkout, order tracking |
+| `apps/merchant-dashboard` | **Built** | Next.js merchant ops — login, live order board (SSE), catalog, settings/theme |
+| `apps/super-admin-console` | **Built** | Next.js platform control plane — tenant list, suspend/activate/cancel |
 | `apps/mobile-app` | **Built (typechecks)** | Expo React Native customer app — same customer flow, native screens |
 | `packages/shared-types` | **Built** | DTOs, enums, error codes, money helpers shared across apps |
-| `apps/merchant-dashboard` | Not built | Merchant admin SPA — planned next |
 
-**Three apps, three folders**, all wired to the same backend API:
+**Apps and ports:**
 
 ```
-apps/backend-server   Node.js + Express + TypeScript   → http://localhost:3100 (or 3000)
-apps/storefront-web   Next.js 15 + Tailwind            → http://localhost:3200
-apps/mobile-app       Expo React Native + TypeScript   → Expo Go / simulator
+apps/backend-server        → http://localhost:3000
+apps/storefront-web        → http://localhost:3200
+apps/merchant-dashboard    → http://localhost:3300
+apps/super-admin-console   → http://localhost:3400
+apps/mobile-app            → Expo Go / simulator
 ```
 
-Coverage today is the **customer journey end-to-end** (browse → customize →
-cart → guest checkout → live order status) on all three. The merchant/branch/
-super-admin dashboards and driver app are the next increment. Payments,
-webhooks, SMS, and custom domains remain deferred (see "Deferred" below).
+Coverage today: **customer journey** (web + mobile), **merchant dashboard**, and **super-admin tenant control**.
+Driver app, payments, and delivery logistics remain deferred (see completion plan).
 
 ---
 
@@ -129,9 +130,11 @@ npm run dev:all
 
 | Command (from repo root) | Runs | URL |
 | --- | --- | --- |
-| `npm run dev:all` | backend **+** web, side by side | :3000 and :3200 |
+| `npm run dev:all` | backend + storefront + merchant + super-admin | :3000, :3200, :3300, :3400 |
 | `npm run dev:backend` | Express API | http://localhost:3000 |
 | `npm run dev:web` | Next.js storefront | http://localhost:3200 |
+| `npm run dev:dashboard` | Merchant dashboard | http://localhost:3300 |
+| `npm run dev:admin` | Super-admin console | http://localhost:3400 |
 | `npm run dev:mobile` | Expo React Native | Expo Go / simulator |
 
 > **Mobile runs separately** — Expo takes over the terminal and needs a

@@ -18,6 +18,10 @@ const SLUG = 'cheesyone';
 const OWNER_EMAIL = 'owner@cheesyone.com';
 const OWNER_PASSWORD = 'cheesyone-dev-12345';
 
+const PLATFORM_SLUG = 'platform';
+const SUPER_EMAIL = 'admin@hyperzod.local';
+const SUPER_PASSWORD = 'hyperzod-admin-12345';
+
 async function main(): Promise<void> {
   const client = new Client({
     host: process.env.DATABASE_HOST ?? 'localhost',
@@ -33,10 +37,13 @@ async function main(): Promise<void> {
   await client.connect();
 
   try {
+    await ensurePlatformAdmin(client);
+
     const existing = await client.query('SELECT id FROM tenants WHERE slug = $1', [SLUG]);
     if (existing.rows.length > 0) {
       // eslint-disable-next-line no-console
-      console.log(`Tenant "${SLUG}" already exists (${existing.rows[0].id}); nothing to do.`);
+      console.log(`Tenant "${SLUG}" already exists (${existing.rows[0].id}); skipping demo seed.`);
+      printLogins();
       return;
     }
 
@@ -165,21 +172,84 @@ async function main(): Promise<void> {
         `  merchant:  ${merchantId}`,
         `  product:   ${productId} (Cappuccino)`,
         '',
-        '  Dashboard login:',
-        `    email:    ${OWNER_EMAIL}`,
-        `    password: ${OWNER_PASSWORD}`,
-        '',
-        '  Try the storefront (dev fallback tenant is "cheesyone"):',
-        '    curl http://localhost:3000/api/v1/storefront/bootstrap',
-        '    curl http://localhost:3000/api/v1/storefront/menu',
       ].join('\n'),
     );
+    printLogins();
   } catch (err) {
     await client.query('ROLLBACK').catch(() => undefined);
     throw err;
   } finally {
     await client.end();
   }
+}
+
+async function ensurePlatformAdmin(client: Client): Promise<void> {
+  const existing = await client.query(`SELECT id FROM tenants WHERE slug = $1`, [PLATFORM_SLUG]);
+  if (existing.rows.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log(`Platform tenant already exists (${existing.rows[0].id}).`);
+    return;
+  }
+
+  await client.query('BEGIN');
+  try {
+    const { rows: tenantRows } = await client.query(
+      `INSERT INTO tenants (name, slug, status, default_currency_code, default_locale, timezone, contact_email)
+       VALUES ($1, $2, 'ACTIVE', 'AUD', 'en-AU', 'UTC', $3)
+       RETURNING id`,
+      ['Hyperzod Platform', PLATFORM_SLUG, SUPER_EMAIL],
+    );
+    const tenantId = tenantRows[0].id as string;
+
+    // Minimal theme row so FK/constraints stay happy if any code joins themes.
+    await client.query(
+      `INSERT INTO tenant_themes (tenant_id, about_text, hero)
+       VALUES ($1, $2, $3::jsonb)`,
+      [
+        tenantId,
+        'Platform control plane.',
+        JSON.stringify({
+          style: 'SOLID',
+          overlay_opacity: 0,
+          heading_text: 'Hyperzod',
+          subheading_text: 'Control plane',
+        }),
+      ],
+    );
+
+    const passwordHash = await hashPassword(SUPER_PASSWORD);
+    await client.query(
+      `INSERT INTO users (tenant_id, email, phone, password_hash, full_name, role, is_active, email_verified_at)
+       VALUES ($1, $2, $3, $4, $5, 'SUPER_ADMIN', true, now())`,
+      [tenantId, SUPER_EMAIL, null, passwordHash, 'Platform Admin'],
+    );
+    await client.query('COMMIT');
+    // eslint-disable-next-line no-console
+    console.log(`Platform SUPER_ADMIN created (${SUPER_EMAIL}).`);
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw err;
+  }
+}
+
+function printLogins(): void {
+  // eslint-disable-next-line no-console
+  console.log(
+    [
+      '  Merchant dashboard login:',
+      `    email:    ${OWNER_EMAIL}`,
+      `    password: ${OWNER_PASSWORD}`,
+      '',
+      '  Super-admin console login:',
+      `    email:    ${SUPER_EMAIL}`,
+      `    password: ${SUPER_PASSWORD}`,
+      `    tenant:   ${PLATFORM_SLUG}`,
+      '',
+      '  Storefront (dev fallback tenant is "cheesyone"):',
+      '    curl http://localhost:3000/api/v1/storefront/bootstrap',
+      '    curl http://localhost:3000/api/v1/storefront/menu',
+    ].join('\n'),
+  );
 }
 
 interface GroupSeed {

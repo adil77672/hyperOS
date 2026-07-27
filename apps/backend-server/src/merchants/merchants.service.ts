@@ -29,6 +29,16 @@ export class MerchantsService {
     return manager.findOne(Merchant, { where: { tenantId, id: merchantId } });
   }
 
+  /** All merchants visible to the current tenant JWT (dashboard bootstrap). */
+  async listForTenant(): Promise<Merchant[]> {
+    const manager = TenantContext.requireManager();
+    const tenantId = TenantContext.requireTenantId();
+    return manager.find(Merchant, {
+      where: { tenantId },
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   /**
    * Authorises a dashboard user against a specific merchant
    * (API_AND_EVENT_CONTRACTS §5.6).

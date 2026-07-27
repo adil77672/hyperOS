@@ -69,7 +69,8 @@ Individual apps:
 - ⬜ **Delivery** — zones (PostGIS), fees, driver assignment, tracking gateway.
 - ⬜ **Operating hours enforcement** — reject orders outside open windows.
 - ⬜ **Multi-branch** — many merchants per tenant, branch-scoped staff.
-- ⬜ **Super-admin control plane** — tenant/subscription/commission management.
+- 🟡 **Super-admin control plane** — tenant list + status (ACTIVE/SUSPENDED/
+  CANCELLED) via `/api/v1/platform`. Subscriptions/commission still open.
 - 🟡 **Tests** — add integration tests (auth, checkout, RLS) + e2e.
 
 ---
@@ -86,10 +87,11 @@ Individual apps:
 - Typed API client (credentials + CSRF), verified against live backend + CORS.
 
 ### Remaining to "complete"
-- ⬜ **Merchant dashboard** (new area or app): login, live order board (SSE),
-  accept/prepare/ready, catalog editor, theme editor, hours, settings.
+- ✅ **Merchant dashboard** (`apps/merchant-dashboard` :3300): login, live order
+  board (SSE), accept/prepare/ready/cancel, catalog editor, settings/theme.
 - ⬜ **Branch ops board**: KDS-style incoming orders, printer, geofence.
-- ⬜ **Super-admin console**: tenants, subscriptions, analytics.
+- ✅ **Super-admin console** (`apps/super-admin-console` :3400): tenants list,
+  activate/suspend/cancel. Subscriptions/analytics still open.
 - ⬜ **Customer accounts UI**: login, order history, saved addresses, reorder.
 - ⬜ **SEO/SSR polish**: per-tenant metadata, sitemaps, OG images, RSC data.
 - ⬜ **Multi-merchant discovery**: location entry, nearby stores, UnifiedCart.

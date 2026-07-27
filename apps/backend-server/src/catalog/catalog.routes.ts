@@ -6,6 +6,7 @@ import { RateLimits } from '../common/rate-limits';
 import { Http } from '../framework/http';
 import { parseBody, uuidParam } from '../framework/validation';
 import { MerchantsService } from '../merchants/merchants.service';
+import { TenantContext } from '../tenancy/tenant-context';
 import { CatalogService } from './catalog.service';
 import { CatalogAdminService } from './catalog-admin.service';
 import {
@@ -41,6 +42,31 @@ export function catalogRoutes(
   const remove = { ...write, status: HttpStatus.NO_CONTENT } as const;
 
   /* ---------------------------------------------------------- merchant */
+
+  /** Dashboard bootstrap: caller identity + merchants in their tenant. */
+  router.get(
+    '/me',
+    http.route(read, async () => {
+      const ctx = TenantContext.require();
+      const list = await merchants.listForTenant();
+      return {
+        user: {
+          id: ctx.userId,
+          tenant_id: ctx.tenantId,
+          role: ctx.role,
+        },
+        merchants: list.map((m) => merchants.toDto(m)),
+      };
+    }),
+  );
+
+  router.get(
+    '/merchants',
+    http.route(read, async () => {
+      const list = await merchants.listForTenant();
+      return list.map((m) => merchants.toDto(m));
+    }),
+  );
 
   router.get(
     '/merchants/:merchantId',

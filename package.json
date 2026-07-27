@@ -6,22 +6,22 @@
   "workspaces": [
     "packages/*",
     "apps/backend-server",
-    "apps/storefront-web"
+    "apps/web"
   ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "npm run build --workspace @hyperzod/shared-types && npm run build --workspace @hyperzod/backend-server",
-    "build:web": "npm run build --workspace @hyperzod/storefront-web",
+    "build:web": "npm run build --workspace @hyperzod/web",
     "build:all": "npm run build && npm run build:web",
 
     "dev": "npm run start:dev --workspace @hyperzod/backend-server",
     "dev:backend": "npm run start:dev --workspace @hyperzod/backend-server",
-    "dev:web": "npm run dev --workspace @hyperzod/storefront-web",
+    "dev:web": "npm run dev --workspace @hyperzod/web",
     "dev:mobile": "npm --prefix apps/mobile-app run start",
 
-    "//dev:all": "Runs the two long-lived servers (backend + web) together. Mobile (Expo) needs its own interactive terminal + simulator, so run `npm run dev:mobile` separately.",
+    "//dev:all": "Backend API + the single web app (all surfaces via route groups). Mobile runs in its own terminal.",
     "dev:all": "concurrently -n backend,web -c green,cyan \"npm:dev:backend\" \"npm:dev:web\"",
 
     "install:all": "npm install && npm --prefix apps/mobile-app install",

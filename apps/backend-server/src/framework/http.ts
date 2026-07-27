@@ -18,8 +18,8 @@ import { EnvelopedResponse } from './envelope';
 export interface RouteOptions {
   /** Require a valid dashboard JWT (verified upstream in tenant middleware). */
   auth?: boolean;
-  /** Restrict to these roles (implies auth). */
-  roles?: UserRole[];
+  /** Restrict to these roles (implies auth). Accepts `as const` tuples too. */
+  roles?: readonly UserRole[];
   /** Enforce double-submit CSRF for storefront sessions. */
   csrf?: boolean;
   rateLimit?: RateLimitConfig;
@@ -125,7 +125,7 @@ export class Http {
     }
   }
 
-  private checkRoles(roles: UserRole[]): void {
+  private checkRoles(roles: readonly UserRole[]): void {
     const role = TenantContext.get()?.role;
     if (!role) throw ApiException.unauthenticated();
     if (!roles.includes(role)) throw ApiException.forbidden();

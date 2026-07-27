@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f4f7f5;
+  --fg: #142019;
+}
+
+html,
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #d4e8db 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #f7e7c2 0%, transparent 45%),
+    var(--bg);
+  color: var(--fg);
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  min-height: 100%;
+}
+
+h1, h2, h3 {
+  font-family: 'Fraunces', Georgia, serif;
+}

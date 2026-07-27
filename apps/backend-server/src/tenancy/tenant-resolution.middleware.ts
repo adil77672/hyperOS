@@ -100,8 +100,17 @@ export function tenantResolutionMiddleware(
   return (req: Request, res: Response, next: NextFunction): void => {
     void (async () => {
       const hostname = normalizeHost(req.headers.host ?? '');
+
+      // Dashboard mode is normally selected by Host (admin.example.com). But a
+      // request carrying an `Authorization: Bearer` token is unambiguously a
+      // dashboard/API call — storefront requests authenticate by cookie, never
+      // by bearer token. Honouring that here lets the merchant dashboard run on
+      // its own local origin (e.g. localhost:3300) without host spoofing, and
+      // is safe: an invalid token simply leaves the context anonymous and every
+      // protected route returns 401.
+      const hasBearer = (req.headers.authorization ?? '').startsWith('Bearer ');
       const context: RequestContext = {
-        mode: hostname === dashboardHost ? 'dashboard' : 'storefront',
+        mode: hostname === dashboardHost || hasBearer ? 'dashboard' : 'storefront',
         requestId: randomUUID(),
       };
       res.setHeader('X-Request-Id', context.requestId);
