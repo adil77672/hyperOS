@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/(user)/account/page": "/account",
+  "/(admin)/admin/login/page": "/admin/login",
+  "/(admin)/admin/catalog/page": "/admin/catalog",
+  "/(admin)/admin/settings/page": "/admin/settings",
+  "/(admin)/admin/page": "/admin",
+  "/(storefront)/page": "/",
+  "/(storefront)/cart/page": "/cart",
+  "/(storefront)/checkout/page": "/checkout",
+  "/(storefront)/products/page": "/products",
+  "/(storefront)/products/[id]/page": "/products/[id]",
+  "/(storefront)/orders/[id]/page": "/orders/[id]",
+  "/(super-admin)/super-admin/login/page": "/super-admin/login",
+  "/(super-admin)/super-admin/page": "/super-admin"
+}
